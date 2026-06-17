@@ -2,7 +2,7 @@ import AppKit
 import UniformTypeIdentifiers
 import WebKit
 
-final class ReaderWindowController: NSWindowController, NSTableViewDataSource, NSTableViewDelegate, NSSearchFieldDelegate, WKNavigationDelegate {
+final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTableViewDataSource, NSTableViewDelegate, NSSearchFieldDelegate, WKNavigationDelegate {
     private let renderer = MarkdownRenderer()
     private var documents: [MarkdownDocument] = []
     private var selectedIndex: Int?
@@ -45,6 +45,7 @@ final class ReaderWindowController: NSWindowController, NSTableViewDataSource, N
         window.titleVisibility = .hidden
         window.isMovableByWindowBackground = true
         super.init(window: window)
+        window.delegate = self
         let contentView = ThemeAwareContentView()
         contentView.onAppearanceChange = { [weak self] in
             self?.applyThemeColors(reloadDocument: true)
@@ -168,6 +169,7 @@ final class ReaderWindowController: NSWindowController, NSTableViewDataSource, N
         sidebarHeader.spacing = 8
         sidebarHeader.edgeInsets = NSEdgeInsets(top: 10, left: 10, bottom: 8, right: 10)
         sidebarHeader.translatesAutoresizingMaskIntoConstraints = false
+        installTitlebarDoubleClick(on: sidebarHeader)
 
         let appLabel = NSTextField(labelWithString: "打开的文件")
         appLabel.font = .systemFont(ofSize: 13, weight: .semibold)
@@ -235,6 +237,7 @@ final class ReaderWindowController: NSWindowController, NSTableViewDataSource, N
         header.edgeInsets = NSEdgeInsets(top: 20, left: 24, bottom: 8, right: 24)
         header.translatesAutoresizingMaskIntoConstraints = false
         header.heightAnchor.constraint(equalToConstant: 72).isActive = true
+        installTitlebarDoubleClick(on: header)
 
         let titleStack = NSStackView()
         titleStack.orientation = .vertical
@@ -372,6 +375,21 @@ final class ReaderWindowController: NSWindowController, NSTableViewDataSource, N
                 return event
             }
         }
+    }
+
+    private func installTitlebarDoubleClick(on view: NSView) {
+        let recognizer = NSClickGestureRecognizer(target: self, action: #selector(titlebarDoubleClicked(_:)))
+        recognizer.numberOfClicksRequired = 2
+        view.addGestureRecognizer(recognizer)
+    }
+
+    @objc private func titlebarDoubleClicked(_ sender: NSClickGestureRecognizer) {
+        guard sender.state == .ended else { return }
+        window?.zoom(nil)
+    }
+
+    func windowWillUseStandardFrame(_ window: NSWindow, defaultFrame newFrame: NSRect) -> NSRect {
+        window.screen?.visibleFrame ?? newFrame
     }
 
     private func configureIconButton(_ button: NSButton, symbol: String, tooltip: String) {
