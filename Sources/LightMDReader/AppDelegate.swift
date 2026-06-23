@@ -69,6 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         newItem.target = self
         fileMenu.addItem(withTitle: "打开...", action: #selector(ReaderWindowController.openDocument(_:)), keyEquivalent: "o")
         fileMenu.addItem(withTitle: "保存", action: #selector(ReaderWindowController.saveCurrentDocument(_:)), keyEquivalent: "s")
+        fileMenu.addItem(withTitle: "另存为...", action: #selector(ReaderWindowController.saveCurrentDocumentAs(_:)), keyEquivalent: "S")
         fileMenu.addItem(NSMenuItem.separator())
         fileMenu.addItem(withTitle: "导出为 PNG...", action: #selector(ReaderWindowController.exportAsPNG(_:)), keyEquivalent: "")
         fileMenu.addItem(withTitle: "导出为 PDF...", action: #selector(ReaderWindowController.exportAsPDF(_:)), keyEquivalent: "")
@@ -77,6 +78,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         fileMenu.addItem(withTitle: "关闭当前文件", action: #selector(ReaderWindowController.closeCurrentDocument(_:)), keyEquivalent: "w")
         fileMenuItem.submenu = fileMenu
         mainMenu.addItem(fileMenuItem)
+
+        let editMenuItem = NSMenuItem()
+        let editMenu = NSMenu(title: "编辑")
+        editMenu.addItem(withTitle: "撤销", action: Selector(("undo:")), keyEquivalent: "z")
+        editMenu.addItem(withTitle: "重做", action: Selector(("redo:")), keyEquivalent: "Z")
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(withTitle: "剪切", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "复制", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "粘贴", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(NSMenuItem.separator())
+        editMenu.addItem(withTitle: "全选", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editMenuItem.submenu = editMenu
+        mainMenu.addItem(editMenuItem)
 
         let viewMenuItem = NSMenuItem()
         let viewMenu = NSMenu(title: "查看")
