@@ -497,19 +497,14 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
         guard let selectedIndex, documents.indices.contains(selectedIndex) else { return }
         let existingURL = documents[selectedIndex].url
 
-        webView.evaluateJavaScript("window.lightMDExportMarkdown && window.lightMDExportMarkdown();") { [weak self] result, error in
+        currentEditorMarkdown(
+            errorTitle: "无法保存文件",
+            conversionFailureDetail: "页面内容无法转换为 Markdown。"
+        ) { [weak self] content in
             guard let self else { return }
-            if let error {
-                self.showError("无法保存文件", detail: error.localizedDescription)
-                return
-            }
-            guard let content = result as? String else {
-                self.showError("无法保存文件", detail: "页面内容无法转换为 Markdown。")
-                return
-            }
 
             guard let existingURL else {
-                self.promptToSaveNewDocument(content: content, selectedIndex: selectedIndex)
+                self.promptToSaveDocument(content: content, selectedIndex: selectedIndex, title: "保存 Markdown")
                 return
             }
 
@@ -517,9 +512,36 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
         }
     }
 
-    private func promptToSaveNewDocument(content: String, selectedIndex: Int) {
+    @objc func saveCurrentDocumentAs(_ sender: Any?) {
+        guard let selectedIndex, documents.indices.contains(selectedIndex) else { return }
+
+        currentEditorMarkdown(
+            errorTitle: "无法另存为文件",
+            conversionFailureDetail: "页面内容无法转换为 Markdown。"
+        ) { [weak self] content in
+            self?.promptToSaveDocument(content: content, selectedIndex: selectedIndex, title: "另存为 Markdown")
+        }
+    }
+
+    private func currentEditorMarkdown(errorTitle: String, conversionFailureDetail: String, completion: @escaping (String) -> Void) {
+        webView.evaluateJavaScript("window.lightMDExportMarkdown && window.lightMDExportMarkdown();") { [weak self] result, error in
+            guard let self else { return }
+            if let error {
+                self.showError(errorTitle, detail: error.localizedDescription)
+                return
+            }
+            guard let content = result as? String else {
+                self.showError(errorTitle, detail: conversionFailureDetail)
+                return
+            }
+
+            completion(content)
+        }
+    }
+
+    private func promptToSaveDocument(content: String, selectedIndex: Int, title: String) {
         let panel = NSSavePanel()
-        panel.title = "保存 Markdown"
+        panel.title = title
         panel.allowedContentTypes = [UTType(filenameExtension: "md"), UTType.plainText].compactMap { $0 }
         panel.nameFieldStringValue = documents[selectedIndex].suggestedFileName + ".md"
         panel.canCreateDirectories = true
@@ -539,13 +561,11 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
             documents[selectedIndex].temporaryTitle = nil
             documents[selectedIndex].content = content
             tableView.reloadData()
+            tableView.selectRowIndexes(IndexSet(integer: selectedIndex), byExtendingSelection: false)
             detailLabel.stringValue = "\(modeLabel()) · \(formattedSize(for: content)) · \(documents[selectedIndex].subtitle)"
             window?.title = documents[selectedIndex].title
-            webView.loadHTMLString(renderer.render(content, title: documents[selectedIndex].title, theme: effectiveTheme), baseURL: documents[selectedIndex].baseURL)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-                self?.applyFontScale()
-                self?.updateMode()
-            }
+            titleLabel.stringValue = documents[selectedIndex].title
+            restoreContentFocus()
         } catch {
             showError("无法保存文件", detail: "\(url.lastPathComponent)\n\(error.localizedDescription)")
         }
@@ -648,6 +668,13 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
         if alert.runModal() == .alertSecondButtonReturn {
             NSWorkspace.shared.activateFileViewerSelecting([url])
         }
+        restoreContentFocus()
+    }
+
+    private func restoreContentFocus() {
+        window?.makeFirstResponder(webView)
+        guard modeControl.selectedSegment == 1 else { return }
+        webView.evaluateJavaScript("window.lightMDMuya && window.lightMDMuya.focus && window.lightMDMuya.focus();")
     }
 
     private func updateMode() {

@@ -69,6 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         newItem.target = self
         fileMenu.addItem(withTitle: "打开...", action: #selector(ReaderWindowController.openDocument(_:)), keyEquivalent: "o")
         fileMenu.addItem(withTitle: "保存", action: #selector(ReaderWindowController.saveCurrentDocument(_:)), keyEquivalent: "s")
+        fileMenu.addItem(withTitle: "另存为...", action: #selector(ReaderWindowController.saveCurrentDocumentAs(_:)), keyEquivalent: "S")
         fileMenu.addItem(NSMenuItem.separator())
         fileMenu.addItem(withTitle: "导出为 PNG...", action: #selector(ReaderWindowController.exportAsPNG(_:)), keyEquivalent: "")
         fileMenu.addItem(withTitle: "导出为 PDF...", action: #selector(ReaderWindowController.exportAsPDF(_:)), keyEquivalent: "")
