@@ -34,4 +34,14 @@ if ! grep -q 'previousFrame.constrained(to: fittedFrame)' "$WINDOW_CONTROLLER"; 
   exit 1
 fi
 
+if ! grep -q 'detailLabel.setContentCompressionResistancePriority(.defaultLow' "$WINDOW_CONTROLLER"; then
+  echo "FAIL: long file paths can still force the window wider than the screen."
+  exit 1
+fi
+
+if ! grep -q 'scheduleWindowConstraintCheck()' "$WINDOW_CONTROLLER" || ! grep -q 'visibleBounds.contains(window.frame)' "$WINDOW_CONTROLLER"; then
+  echo "FAIL: off-screen restored windows are not corrected after opening a document."
+  exit 1
+fi
+
 echo "PASS: titlebar double-click safely fits and restores the window."

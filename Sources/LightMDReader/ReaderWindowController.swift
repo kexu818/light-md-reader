@@ -250,9 +250,11 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
 
         titleLabel.font = .systemFont(ofSize: 16, weight: .semibold)
         titleLabel.lineBreakMode = .byTruncatingMiddle
+        titleLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         detailLabel.font = .systemFont(ofSize: 12)
         detailLabel.textColor = .secondaryLabelColor
         detailLabel.lineBreakMode = .byTruncatingMiddle
+        detailLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         titleStack.addArrangedSubview(titleLabel)
         titleStack.addArrangedSubview(detailLabel)
 
@@ -418,6 +420,24 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
         return visibleFrame.insetBy(dx: horizontalMargin, dy: verticalMargin)
     }
 
+    private func constrainWindowToVisibleScreenIfNeeded() {
+        guard let window else { return }
+        let visibleBounds = fittedFrame(for: window, fallback: window.frame)
+        guard !visibleBounds.contains(window.frame) else { return }
+        window.setFrame(window.frame.constrained(to: visibleBounds), display: true)
+    }
+
+    private func scheduleWindowConstraintCheck() {
+        DispatchQueue.main.async { [weak self] in
+            self?.window?.contentView?.layoutSubtreeIfNeeded()
+            self?.constrainWindowToVisibleScreenIfNeeded()
+        }
+    }
+
+    func windowDidChangeScreen(_ notification: Notification) {
+        scheduleWindowConstraintCheck()
+    }
+
     private func configureIconButton(_ button: NSButton, symbol: String, tooltip: String) {
         button.target = self
         button.image = NSImage(systemSymbolName: symbol, accessibilityDescription: tooltip)
@@ -506,6 +526,7 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
         titleLabel.stringValue = document.title
         detailLabel.stringValue = "\(modeLabel()) · \(formattedSize(for: document.content)) · \(document.subtitle)"
         window?.title = document.title
+        scheduleWindowConstraintCheck()
         updateStatus()
         webView.loadHTMLString(renderer.render(document.content, title: document.title, theme: effectiveTheme), baseURL: document.baseURL)
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
