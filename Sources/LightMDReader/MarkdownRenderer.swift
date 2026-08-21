@@ -48,6 +48,8 @@ final class MarkdownRenderer {
               --link: #1769e0;
               --accent: #1769e0;
               --focus-ring: color-mix(in srgb, var(--link) 34%, transparent);
+              --document-width: 720px;
+              --document-gutter: 48px;
             }
             html[data-theme="paper"] {
               color-scheme: light;
@@ -94,7 +96,7 @@ final class MarkdownRenderer {
               line-height: 1.72;
             }
             main {
-              max-width: 720px;
+              max-width: var(--document-width);
               margin: 0 auto;
               padding: 40px 76px 72px 48px;
             }
@@ -274,10 +276,10 @@ final class MarkdownRenderer {
             }
             #lightmd-editor {
               box-sizing: border-box;
-              width: min(860px, calc(100% - 96px));
+              width: min(var(--document-width), calc(100% - (2 * var(--document-gutter))));
               min-height: calc(100vh - 92px);
               margin: 0 auto;
-              padding: 38px 0 72px;
+              padding: 0;
               color: var(--fg);
               caret-color: var(--link);
               --editor-bg-color: var(--bg);
@@ -285,6 +287,17 @@ final class MarkdownRenderer {
               --editor-border-color: var(--border);
               --editor-primary-color: var(--link);
               --editor-select-bg-color: var(--focus-ring);
+            }
+            #lightmd-editor .mu-container {
+              box-sizing: border-box;
+              width: 100%;
+              max-width: none;
+              min-height: calc(100vh - 92px);
+              margin: 0;
+              padding: 40px 0 72px;
+              color: var(--fg);
+              font-size: calc(16px * var(--font-scale));
+              line-height: 1.72;
             }
             #lightmd-editor,
             #lightmd-editor * {
@@ -306,7 +319,14 @@ final class MarkdownRenderer {
             #lightmd-editor h6 {
               color: var(--fg);
               line-height: 1.28;
+              margin: 1.45em 0 0.55em;
+              padding: 0;
               border: 0;
+            }
+            #lightmd-editor .mu-container > h1:first-child,
+            #lightmd-editor .mu-container > h2:first-child,
+            #lightmd-editor .mu-container > h3:first-child {
+              margin-top: 0;
             }
             #lightmd-editor h1 { font-size: calc(2.08rem * var(--font-scale)); }
             #lightmd-editor h2 {
@@ -315,17 +335,40 @@ final class MarkdownRenderer {
               padding-bottom: 0.25em;
             }
             #lightmd-editor h3 { font-size: calc(1.25rem * var(--font-scale)); }
-            #lightmd-editor p,
-            #lightmd-editor li,
-            #lightmd-editor blockquote,
-            #lightmd-editor table {
+            #lightmd-editor .mu-paragraph,
+            #lightmd-editor .mu-container p,
+            #lightmd-editor .mu-container li,
+            #lightmd-editor .mu-container blockquote,
+            #lightmd-editor .mu-table-inner {
               font-size: calc(16px * var(--font-scale));
               line-height: 1.72;
               color: var(--fg);
             }
+            #lightmd-editor .mu-paragraph,
+            #lightmd-editor .mu-container p {
+              margin: 0.65em 0;
+              padding: 0;
+            }
+            #lightmd-editor .mu-container ul,
+            #lightmd-editor .mu-container ol {
+              margin: 0.65em 0;
+              padding: 0 0 0 1.5em;
+            }
             #lightmd-editor blockquote {
-              border-left-color: var(--accent);
+              margin: 1em 0;
+              padding: 0.75em 1em;
+              border-left: 4px solid var(--accent);
               background: var(--quote-bg);
+            }
+            #lightmd-editor blockquote::before {
+              display: none;
+            }
+            #lightmd-editor .mu-code-block {
+              margin: 1em 0;
+              padding: 14px 16px;
+              border: 1px solid var(--border);
+              border-radius: 7px;
+              background: var(--code-bg);
             }
             #lightmd-editor pre,
             #lightmd-editor code {
@@ -336,8 +379,27 @@ final class MarkdownRenderer {
             #lightmd-editor a {
               color: var(--link);
             }
+            #lightmd-editor .mu-table {
+              margin: 1em 0;
+              padding: 0;
+            }
+            #lightmd-editor .mu-table-inner {
+              width: 100%;
+            }
+            #lightmd-editor .mu-table-inner th {
+              background: var(--code-bg);
+            }
+            #lightmd-editor .mu-thematic-break:not(.mu-active)::before {
+              top: 1em;
+              background: var(--border);
+            }
             #lightmd-editor [contenteditable="true"]:focus {
               outline: 0;
+            }
+            @media (max-width: 760px) {
+              :root {
+                --document-gutter: 28px;
+              }
             }
           </style>
           \(muyaScriptTag())

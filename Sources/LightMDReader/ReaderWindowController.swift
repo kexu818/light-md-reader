@@ -31,6 +31,9 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
     private var fontScale = 1.0
     private var keyMonitor: Any?
     private var exportSessions: [RenderExportSession] = []
+    private var frameBeforeWindowFit: NSRect?
+
+    private let windowFitMargin: CGFloat = 8
 
     init() {
         let window = NSWindow(
@@ -385,11 +388,34 @@ final class ReaderWindowController: NSWindowController, NSWindowDelegate, NSTabl
 
     @objc private func titlebarDoubleClicked(_ sender: NSClickGestureRecognizer) {
         guard sender.state == .ended else { return }
-        window?.zoom(nil)
+        toggleWindowFit()
     }
 
     func windowWillUseStandardFrame(_ window: NSWindow, defaultFrame newFrame: NSRect) -> NSRect {
-        window.screen?.visibleFrame ?? newFrame
+        fittedFrame(for: window, fallback: newFrame)
+    }
+
+    private func toggleWindowFit() {
+        guard let window else { return }
+        let fittedFrame = fittedFrame(for: window, fallback: window.frame)
+
+        if window.frame.isApproximatelyEqual(to: fittedFrame) {
+            guard let previousFrame = frameBeforeWindowFit else { return }
+            frameBeforeWindowFit = nil
+            window.setFrame(previousFrame.constrained(to: fittedFrame), display: true, animate: true)
+            return
+        }
+
+        frameBeforeWindowFit = window.frame
+        window.setFrame(fittedFrame, display: true, animate: true)
+    }
+
+    private func fittedFrame(for window: NSWindow, fallback: NSRect) -> NSRect {
+        guard let screen = window.screen ?? NSScreen.main else { return fallback }
+        let visibleFrame = screen.visibleFrame
+        let horizontalMargin = min(windowFitMargin, visibleFrame.width / 2)
+        let verticalMargin = min(windowFitMargin, visibleFrame.height / 2)
+        return visibleFrame.insetBy(dx: horizontalMargin, dy: verticalMargin)
     }
 
     private func configureIconButton(_ button: NSButton, symbol: String, tooltip: String) {

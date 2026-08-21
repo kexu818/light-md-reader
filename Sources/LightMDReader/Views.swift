@@ -74,3 +74,27 @@ final class RoundedReaderView: NSView {
         nil
     }
 }
+
+extension NSRect {
+    func isApproximatelyEqual(to other: NSRect, tolerance: CGFloat = 1) -> Bool {
+        abs(minX - other.minX) <= tolerance &&
+            abs(minY - other.minY) <= tolerance &&
+            abs(width - other.width) <= tolerance &&
+            abs(height - other.height) <= tolerance
+    }
+
+    func constrained(to bounds: NSRect) -> NSRect {
+        let fittedSize = NSSize(
+            width: min(width, bounds.width),
+            height: min(height, bounds.height)
+        )
+        let maximumOriginX = bounds.maxX - fittedSize.width
+        let maximumOriginY = bounds.maxY - fittedSize.height
+        return NSRect(
+            x: min(max(minX, bounds.minX), maximumOriginX),
+            y: min(max(minY, bounds.minY), maximumOriginY),
+            width: fittedSize.width,
+            height: fittedSize.height
+        )
+    }
+}

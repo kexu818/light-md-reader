@@ -14,14 +14,24 @@ if ! grep -q 'window.delegate = self' "$WINDOW_CONTROLLER"; then
   exit 1
 fi
 
-if ! grep -q 'window?.zoom(nil)' "$WINDOW_CONTROLLER"; then
-  echo "FAIL: titlebar double-click does not trigger window zoom."
+if ! grep -q 'toggleWindowFit()' "$WINDOW_CONTROLLER"; then
+  echo "FAIL: titlebar double-click does not trigger explicit window fitting."
   exit 1
 fi
 
-if ! grep -q 'windowWillUseStandardFrame' "$WINDOW_CONTROLLER" || ! grep -q 'visibleFrame' "$WINDOW_CONTROLLER"; then
+if ! grep -q 'windowWillUseStandardFrame' "$WINDOW_CONTROLLER" || ! grep -q 'visibleFrame.insetBy' "$WINDOW_CONTROLLER"; then
   echo "FAIL: standard zoom frame does not use the current screen visible frame."
   exit 1
 fi
 
-echo "PASS: titlebar double-click zoom fills the current screen."
+if ! grep -q 'window.setFrame(fittedFrame' "$WINDOW_CONTROLLER"; then
+  echo "FAIL: oversized windows are not forced back inside the fitted frame."
+  exit 1
+fi
+
+if ! grep -q 'previousFrame.constrained(to: fittedFrame)' "$WINDOW_CONTROLLER"; then
+  echo "FAIL: restored windows are not constrained to the visible screen."
+  exit 1
+fi
+
+echo "PASS: titlebar double-click safely fits and restores the window."
