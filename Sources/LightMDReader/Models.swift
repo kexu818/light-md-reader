@@ -4,7 +4,7 @@ import UniformTypeIdentifiers
 let appDisplayName = "LightMD"
 let appBundleIdentifier = "com.kellan.lightmd"
 let themeDefaultsKey = "LightMD.SelectedTheme"
-let developerDisplayName = "Kellan / 许可"
+let developerDisplayName = "KE XU / 许可"
 let developerEmail = "kenbot818@gmail.com"
 
 struct MarkdownDocument: Equatable {

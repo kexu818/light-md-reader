@@ -2,7 +2,7 @@
 
 面向 AI 工具高频用户的 Mac 轻便 Markdown 阅读器。核心目标是：双击 `.md` 文件后，直接看到渲染后的阅读视图。
 
-开发者：Kellan / 许可  
+开发者：KE XU / 许可
 联系邮箱：kenbot818@gmail.com
 
 ## 下载
