@@ -9,8 +9,8 @@
 
 当前版本：v0.1.0
 
-- Release 页面：[LightMD v0.1.0](https://github.com/kellanxu/light-md-reader/releases/tag/v0.1.0)
-- 直接下载：[LightMD.dmg](https://github.com/kellanxu/light-md-reader/releases/download/v0.1.0/LightMD.dmg)
+- Release 页面：[LightMD v0.1.0](https://github.com/kexu818/light-md-reader/releases/tag/v0.1.0)
+- 直接下载：[LightMD.dmg](https://github.com/kexu818/light-md-reader/releases/download/v0.1.0/LightMD.dmg)
 
 下载 DMG 后打开，把 `LightMD` 拖到 `Applications` 即可安装。
 
