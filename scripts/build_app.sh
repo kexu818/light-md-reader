@@ -4,7 +4,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 APP_NAME="LightMD"
 BUNDLE_ID="com.kellan.lightmd"
-DEVELOPER_NAME="Kellan / 许可"
+DEVELOPER_NAME="KE XU / 许可"
 DEVELOPER_EMAIL="kenbot818@gmail.com"
 BUILD_CONFIG="${1:-release}"
 APP_DIR="$ROOT_DIR/build/$APP_NAME.app"
